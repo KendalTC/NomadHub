@@ -129,33 +129,36 @@ function CountryProfile() {
         gap: '10px',
         marginBottom: '1.5rem',
       }}>
-        {[
-          { label: 'Capital', value: country.capital },
-          { label: 'Región', value: `${country.subregion}, ${country.region}` },
-          { label: 'Población', value: country.population.toLocaleString() },
-          { label: 'Área', value: `${country.area.toLocaleString()} km²` },
-          { label: 'Zona horaria', value: country.timezones[0] },
-        ].map((item) => (
-          <div key={item.label} style={{
-            background: 'var(--bg-secondary)',
-            border: '0.5px solid var(--border)',
-            borderRadius: 'var(--radius)',
-            padding: '0.75rem 1rem',
-          }}>
-            <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', margin: '0 0 4px' }}>
-              {item.label}
-            </p>
-            <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', margin: 0 }}>
-              {item.value}
-            </p>
-          </div>
-        ))}
+        <div style={{ background: 'var(--bg-secondary)', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', padding: '0.75rem 1rem' }}>
+          <p style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', margin: '0 0 4px' }}>Capital</p>
+          <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', margin: 0 }}>{country.capital}</p>
+        </div>
+        <div style={{ background: 'var(--bg-secondary)', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', padding: '0.75rem 1rem' }}>
+          <p style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', margin: '0 0 4px' }}>Región</p>
+          <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', margin: 0 }}>{country.region}</p>
+        </div>
+        <div style={{ background: 'var(--bg-secondary)', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', padding: '0.75rem 1rem' }}>
+          <p style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', margin: '0 0 4px' }}>Subregión</p>
+          <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', margin: 0 }}>{country.subregion}</p>
+        </div>
+        <div style={{ background: 'var(--bg-secondary)', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', padding: '0.75rem 1rem' }}>
+          <p style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', margin: '0 0 4px' }}>Población</p>
+          <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', margin: 0 }}>{country.population.toLocaleString()}</p>
+        </div>
+        <div style={{ background: 'var(--bg-secondary)', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', padding: '0.75rem 1rem' }}>
+          <p style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', margin: '0 0 4px' }}>Área</p>
+          <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', margin: 0 }}>{country.area.toLocaleString()} km²</p>
+        </div>
+        <div style={{ background: 'var(--bg-secondary)', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', padding: '0.75rem 1rem' }}>
+          <p style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-muted)', margin: '0 0 4px' }}>Zona horaria</p>
+          <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)', margin: 0 }}>{country.timezones[0]}</p>
+        </div>
       </div>
 
       {/* Actions */}
       <div style={{ display: 'flex', gap: '10px' }}>
         <button
-          onClick={() => navigate(`/flights?destination=${country.country_code}`)}
+          onClick={() => navigate(`/flights?country=${country.country_code}&countryName=${country.name}`)}
           style={{
             background: 'var(--accent)',
             border: 'none',

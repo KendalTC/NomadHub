@@ -5,6 +5,82 @@ import { useEffect, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
+
+const COUNTRY_NAME_MAP: Record<string, string> = {
+    'Francia': 'France',
+    'Alemania': 'Germany',
+    'España': 'Spain',
+    'Italia': 'Italy',
+    'Países Bajos': 'Netherlands',
+    'Bélgica': 'Belgium',
+    'Suiza': 'Switzerland',
+    'Austria': 'Austria',
+    'Suecia': 'Sweden',
+    'Noruega': 'Norway',
+    'Dinamarca': 'Denmark',
+    'Finlandia': 'Finland',
+    'Polonia': 'Poland',
+    'República Checa': 'Czech Republic',
+    'Hungría': 'Hungary',
+    'Rumania': 'Romania',
+    'Bulgaria': 'Bulgaria',
+    'Grecia': 'Greece',
+    'Portugal': 'Portugal',
+    'Croacia': 'Croatia',
+    'Serbia': 'Serbia',
+    'Ucrania': 'Ukraine',
+    'Rusia': 'Russia',
+    'Turquía': 'Turkey',
+    'China': 'China',
+    'Japón': 'Japan',
+    'Corea del Sur': 'South Korea',
+    'Corea del Norte': 'North Korea',
+    'India': 'India',
+    'Pakistán': 'Pakistan',
+    'Irán': 'Iran',
+    'Irak': 'Iraq',
+    'Arabia Saudita': 'Saudi Arabia',
+    'Emiratos Árabes Unidos': 'United Arab Emirates',
+    'Israel': 'Israel',
+    'Egipto': 'Egypt',
+    'Sudáfrica': 'South Africa',
+    'Nigeria': 'Nigeria',
+    'Kenia': 'Kenya',
+    'Etiopía': 'Ethiopia',
+    'Tanzania': 'Tanzania',
+    'Marruecos': 'Morocco',
+    'Argelia': 'Algeria',
+    'México': 'Mexico',
+    'Colombia': 'Colombia',
+    'Venezuela': 'Venezuela',
+    'Perú': 'Peru',
+    'Chile': 'Chile',
+    'Ecuador': 'Ecuador',
+    'Bolivia': 'Bolivia',
+    'Paraguay': 'Paraguay',
+    'Uruguay': 'Uruguay',
+    'Brasil': 'Brazil',
+    'Estados Unidos de América': 'United States',
+    'Canadá': 'Canada',
+    'Cuba': 'Cuba',
+    'República Dominicana': 'Dominican Republic',
+    'Guatemala': 'Guatemala',
+    'Honduras': 'Honduras',
+    'El Salvador': 'El Salvador',
+    'Nicaragua': 'Nicaragua',
+    'Costa Rica': 'Costa Rica',
+    'Panamá': 'Panama',
+    'Australia': 'Australia',
+    'Nueva Zelanda': 'New Zealand',
+    'Indonesia': 'Indonesia',
+    'Malasia': 'Malaysia',
+    'Filipinas': 'Philippines',
+    'Tailandia': 'Thailand',
+    'Vietnam': 'Vietnam',
+    'Camboya': 'Cambodia',
+    'Myanmar': 'Myanmar',
+}
+
 interface MapViewProps {
     onCountryClick: (countryName: string) => void
 }
@@ -79,7 +155,8 @@ function MapView({ onCountryClick }: MapViewProps) {
 
                         layer.on('click', () => {
                             if (countryName) {
-                                onCountryClickRef.current(countryName)
+                                const englishName = COUNTRY_NAME_MAP[countryName] || countryName
+                                onCountryClickRef.current(englishName)
                             }
                         })
 

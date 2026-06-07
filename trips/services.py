@@ -4,12 +4,90 @@ from datetime import datetime, date, timedelta
 from django.conf import settings
 
 
-# ─── REST Countries ───────────────────────────────────────────────────────────
+REGION_TRANSLATIONS = {
+    'Africa': 'África',
+    'Americas': 'América',
+    'Asia': 'Asia',
+    'Europe': 'Europa',
+    'Oceania': 'Oceanía',
+    'Antarctic': 'Antártica',
+}
 
+SUBREGION_TRANSLATIONS = {
+    'Northern Africa': 'África del Norte',
+    'Eastern Africa': 'África del Este',
+    'Western Africa': 'África Occidental',
+    'Southern Africa': 'África del Sur',
+    'Middle Africa': 'África Central',
+    'Northern America': 'América del Norte',
+    'Central America': 'América Central',
+    'South America': 'América del Sur',
+    'Caribbean': 'Caribe',
+    'Eastern Asia': 'Asia Oriental',
+    'South-Eastern Asia': 'Asia Sudoriental',
+    'Southern Asia': 'Asia Meridional',
+    'Central Asia': 'Asia Central',
+    'Western Asia': 'Asia Occidental',
+    'Northern Europe': 'Europa del Norte',
+    'Southern Europe': 'Europa del Sur',
+    'Eastern Europe': 'Europa del Este',
+    'Western Europe': 'Europa Occidental',
+    'Australia and New Zealand': 'Australia y Nueva Zelanda',
+    'Melanesia': 'Melanesia',
+    'Micronesia': 'Micronesia',
+    'Polynesia': 'Polinesia',
+}
+
+LANGUAGE_TRANSLATIONS = {
+    'English': 'Inglés',
+    'Spanish': 'Español',
+    'French': 'Francés',
+    'German': 'Alemán',
+    'Portuguese': 'Portugués',
+    'Italian': 'Italiano',
+    'Japanese': 'Japonés',
+    'Chinese': 'Chino',
+    'Arabic': 'Árabe',
+    'Russian': 'Ruso',
+    'Korean': 'Coreano',
+    'Dutch': 'Neerlandés',
+    'Swedish': 'Sueco',
+    'Norwegian': 'Noruego',
+    'Danish': 'Danés',
+    'Finnish': 'Finlandés',
+    'Polish': 'Polaco',
+    'Turkish': 'Turco',
+    'Hindi': 'Hindi',
+    'Bengali': 'Bengalí',
+    'Malay': 'Malayo',
+    'Indonesian': 'Indonesio',
+    'Thai': 'Tailandés',
+    'Vietnamese': 'Vietnamita',
+    'Greek': 'Griego',
+    'Czech': 'Checo',
+    'Romanian': 'Rumano',
+    'Hungarian': 'Húngaro',
+    'Ukrainian': 'Ucraniano',
+    'Swahili': 'Suajili',
+    'Catalan': 'Catalán',
+    'Croatian': 'Croata',
+    'Slovak': 'Eslovaco',
+    'Bulgarian': 'Búlgaro',
+    'Serbian': 'Serbio',
+    'Hebrew': 'Hebreo',
+    'Urdu': 'Urdu',
+    'Persian': 'Persa',
+    'Tagalog': 'Tagalo',
+}
+
+# ─── REST Countries ───────────────────────────────────────────────────────────
 def get_country_profile(country_name):
     """Fetch full country data from REST Countries API."""
     try:
-        url = f"https://restcountries.com/v3.1/name/{country_name}"
+        if len(country_name) == 2:
+            url = f"https://restcountries.com/v3.1/alpha/{country_name}"
+        else:
+            url = f"https://restcountries.com/v3.1/name/{country_name}"
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         data = response.json()
@@ -26,30 +104,31 @@ def get_country_profile(country_name):
             currency_info.append(f"{info.get('name', '')} ({code})")
 
         # Extract languages
-        languages = list(country.get('languages', {}).values())
+        languages = [LANGUAGE_TRANSLATIONS.get(lang, lang) for lang in country.get('languages', {}).values()]
 
         # Extract capital coordinates for weather
         latlng = country.get('capitalInfo', {}).get('latlng') or country.get('latlng', [0, 0])
 
         return {
-            'name': country.get('name', {}).get('common', ''),
-            'official_name': country.get('name', {}).get('official', ''),
-            'capital': country.get('capital', ['N/A'])[0] if country.get('capital') else 'N/A',
-            'region': country.get('region', ''),
-            'subregion': country.get('subregion', ''),
-            'population': country.get('population', 0),
-            'area': country.get('area', 0),
-            'flag_url': country.get('flags', {}).get('svg', ''),
-            'flag_alt': country.get('flags', {}).get('alt', ''),
-            'languages': languages,
-            'currencies': currency_info,
-            'timezones': country.get('timezones', []),
-            'borders': country.get('borders', []),
-            'lat': latlng[0] if latlng else 0,
-            'lng': latlng[1] if latlng else 0,
-            'country_code': country.get('cca2', ''),
-            'google_maps': country.get('maps', {}).get('googleMaps', ''),
-        }
+    'name': country.get('translations', {}).get('spa', {}).get('common', '') or country.get('name', {}).get('common', ''),
+    'name_en': country.get('name', {}).get('common', ''),
+    'official_name': country.get('name', {}).get('official', ''),
+    'capital': country.get('capital', ['N/A'])[0] if country.get('capital') else 'N/A',
+    'region': REGION_TRANSLATIONS.get(country.get('region', ''), country.get('region', '')),
+    'subregion': SUBREGION_TRANSLATIONS.get(country.get('subregion', ''), country.get('subregion', '')),
+    'population': country.get('population', 0),
+    'area': country.get('area', 0),
+    'flag_url': country.get('flags', {}).get('svg', ''),
+    'flag_alt': country.get('flags', {}).get('alt', ''),
+    'languages': languages,
+    'currencies': currency_info,
+    'timezones': country.get('timezones', []),
+    'borders': country.get('borders', []),
+    'lat': latlng[0] if latlng else 0,
+    'lng': latlng[1] if latlng else 0,
+    'country_code': country.get('cca2', ''),
+    'google_maps': country.get('maps', {}).get('googleMaps', ''),
+}
 
     except requests.exceptions.ConnectionError:
         return {'error': 'Connection error. Please check your internet connection.'}
@@ -243,3 +322,40 @@ def search_flights(origin_iata, destination_iata):
         return {'error': 'Flight search timed out.'}
     except Exception as e:
         return {'error': f'Flight search error: {e}'}
+    
+def get_airports_by_country(country_code):
+    """Fetch airports for a given country code using Aviation Stack."""
+    try:
+        url = "http://api.aviationstack.com/v1/airports"
+        params = {
+            'access_key': settings.AVIATION_KEY,
+            'country_iso2': country_code.upper(),
+            'limit': 20,
+        }
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        if 'error' in data:
+            return {'error': data['error'].get('message', 'Aviation API error.')}
+
+        airports = []
+        for airport in data.get('data', []):
+            iata = airport.get('iata_code')
+            name = airport.get('airport_name')
+            city = airport.get('city_iata_code') or airport.get('city', '')
+            if iata:
+                airports.append({
+                    'iata': iata,
+                    'name': name,
+                    'city': city,
+                })
+
+        return {'airports': airports, 'count': len(airports)}
+
+    except requests.exceptions.ConnectionError:
+        return {'error': 'Could not connect to aviation service.'}
+    except requests.exceptions.Timeout:
+        return {'error': 'Request timed out.'}
+    except Exception as e:
+        return {'error': f'Airport search error: {e}'}

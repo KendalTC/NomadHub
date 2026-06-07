@@ -23,7 +23,7 @@ function ItineraryDetail() {
         const itin = await getItinerary(Number(id))
         setItinerary(itin)
 
-        const countryData = await getCountryProfile(itin.destination_country)
+        const countryData = await getCountryProfile(itin.destination_country_code || itin.destination_country)
         setCountry(countryData)
 
         const weatherData = await getWeatherForDate(

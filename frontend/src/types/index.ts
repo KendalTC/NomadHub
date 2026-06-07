@@ -10,6 +10,7 @@ export interface Weather {
 
 export interface Country {
   name: string;
+  name_en: string;  // agregar esta línea
   official_name: string;
   capital: string;
   region: string;
@@ -72,3 +73,10 @@ export interface WeatherForecast {
   description?: string;
   note?: string;
 }
+
+export interface Airport {
+  iata: string;
+  name: string;
+  city: string;
+}
+

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getCountryProfile } from '../api/index'
+import { getFeaturedCountries } from '../api/index'
 import type { Country } from '../types/index'
 import MapView from '../components/MapView'
 
@@ -11,21 +11,17 @@ function Home() {
   const [featured, setFeatured] = useState<Country[]>([])
   const [loading, setLoading] = useState(true)
 
-  const featuredCountries = ['Japan', 'Italy', 'Mexico', 'France', 'Australia', 'Brazil']
 
   useEffect(() => {
     const fetchFeatured = async () => {
-      const results: Country[] = []
-      for (const name of featuredCountries) {
-        try {
-          const data = await getCountryProfile(name)
-          results.push(data)
-        } catch {
-          // skip failed
-        }
+      try {
+        const data = await getFeaturedCountries()
+        setFeatured(data)
+      } catch {
+        console.error('Error fetching featured countries')
+      } finally {
+        setLoading(false)
       }
-      setFeatured(results)
-      setLoading(false)
     }
     fetchFeatured()
   }, [])
@@ -131,7 +127,7 @@ function Home() {
             {featured.map((country) => (
               <div
                 key={country.country_code}
-                onClick={() => handleCountryClick(country.name)}
+                onClick={() => handleCountryClick(country.name_en)}
                 style={{
                   background: 'var(--bg-card)',
                   border: '0.5px solid var(--border)',

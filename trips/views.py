@@ -8,11 +8,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Itinerary, FlightSearch
 from .serializers import ItinerarySerializer, FlightSearchSerializer
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from . import services
 
 
 # ─── Country ──────────────────────────────────────────────────────────────────
-
 @api_view(['GET'])
 def country_profile(request, country_name):
     """Return full country profile with current weather."""
@@ -29,6 +29,30 @@ def country_profile(request, country_name):
 
     return Response(country)
 
+
+
+@api_view(['GET'])
+def featured_countries(request):
+    """Return multiple countries in parallel for faster loading."""
+    names = ['Japan', 'Italy', 'Mexico', 'France', 'Australia', 'Brazil']
+
+    def fetch_country(name):
+        country = services.get_country_profile(name)
+        if country and 'error' not in country:
+            weather = services.get_current_weather(country['lat'], country['lng'])
+            country['weather'] = weather if 'error' not in weather else None
+            return country
+        return None
+
+    results = []
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        futures = {executor.submit(fetch_country, name): name for name in names}
+        for future in as_completed(futures):
+            result = future.result()
+            if result:
+                results.append(result)
+
+    return Response(results)
 
 # ─── Weather ──────────────────────────────────────────────────────────────────
 
@@ -121,3 +145,12 @@ def itinerary_detail(request, pk):
     elif request.method == 'DELETE':
         itinerary.delete()
         return Response({'message': 'Itinerary deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+    
+    
+@api_view(['GET'])
+def airports_by_country(request, country_code):
+    """Return list of airports for a given country code."""
+    result = services.get_airports_by_country(country_code)
+    if 'error' in result:
+        return Response({'error': result['error']}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(result)

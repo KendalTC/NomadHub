@@ -71,3 +71,13 @@ export const updateItinerary = async (id: number, data: Itinerary): Promise<Itin
 export const deleteItinerary = async (id: number): Promise<void> => {
   await API.delete(`/api/itineraries/${id}/`);
 };
+
+export const getFeaturedCountries = async (): Promise<Country[]> => {
+  const response = await API.get('/api/featured/')
+  return response.data
+}
+
+export const getAirportsByCountry = async (countryCode: string) => {
+  const response = await API.get(`/api/airports/${countryCode}/`)
+  return response.data
+}
