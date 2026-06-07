@@ -6,32 +6,72 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { getItinerary, createItinerary, updateItinerary } from '../api/index'
 import type { Itinerary } from '../types/index'
 
-
 function ItineraryForm() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const isEditing = !!id
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [form, setForm] = useState<Itinerary>({
     title: '',
     destination_country: searchParams.get('country') || '',
     destination_country_code: searchParams.get('code') || '',
-    origin_city: '',
-    departure_date: '',
+    origin_city: searchParams.get('origin') || '',
+    departure_date: searchParams.get('date') || '',
     return_date: null,
     budget: 0,
     status: 'dreaming',
     notes: '',
   })
+
+  const [countryInput, setCountryInput] = useState(searchParams.get('country') || '')
+
+  const [countrySuggestions, setCountrySuggestions] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (isEditing) {
-      getItinerary(Number(id)).then(setForm).catch(() => setError('Error al cargar itinerario.'))
+      getItinerary(Number(id)).then(data => {
+        setForm(data)
+        setCountryInput(data.destination_country)
+      }).catch(() => setError('Error al cargar itinerario.'))
     }
   }, [id])
+
+  const handleCountryInput = (value: string) => {
+    setCountryInput(value)
+    setCountrySuggestions([])
+    setForm(prev => ({ ...prev, destination_country: '', destination_country_code: '' }))
+
+    if (searchTimeout.current) clearTimeout(searchTimeout.current)
+    if (value.length < 3) return
+
+    searchTimeout.current = setTimeout(async () => {
+      try {
+        const response = await fetch(`https://restcountries.com/v3.1/translation/${value}?fields=name,cca2,translations,flags`)
+        if (!response.ok) return
+        const data = await response.json()
+        setCountrySuggestions(data.slice(0, 5))
+      } catch {
+        // ignore
+      }
+    }, 600)
+  }
+
+  const handleCountrySelect = (country: any) => {
+    const nameEs = country.translations?.spa?.common || country.name?.common
+    const nameEn = country.name?.common
+    const code = country.cca2
+    setCountryInput(nameEs)
+    setForm(prev => ({
+      ...prev,
+      destination_country: nameEn,
+      destination_country_code: code,
+    }))
+    setCountrySuggestions([])
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -76,30 +116,6 @@ function ItineraryForm() {
     display: 'block',
   }
 
-  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const handleCountryChange = async (value: string) => {
-    setForm(prev => ({ ...prev, destination_country: value, destination_country_code: '' }))
-
-    if (searchTimeout.current) clearTimeout(searchTimeout.current)
-
-    if (value.length < 3) return
-
-    searchTimeout.current = setTimeout(async () => {
-      try {
-        const response = await fetch(`https://restcountries.com/v3.1/name/${value}?fields=name,cca2,translations`)
-        const data = await response.json()
-        if (data && data[0]) {
-          const code = data[0].cca2
-          const nameEs = data[0].translations?.spa?.common || data[0].name?.common
-          setForm(prev => ({ ...prev, destination_country: nameEs, destination_country_code: code }))
-        }
-      } catch {
-        // ignore
-      }
-    }, 800)
-  }
-
   return (
     <main style={{ padding: '2rem', maxWidth: '640px', margin: '0 auto' }}>
       <h1 style={{ fontSize: '1.75rem', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 0.25rem' }}>
@@ -138,30 +154,74 @@ function ItineraryForm() {
           />
         </div>
 
-        {/* Country + Code */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '10px' }}>
-          <div>
-            <label style={labelStyle}>País destino</label>
-            <input
-              name="destination_country"
-              value={form.destination_country}
-              onChange={(e) => handleCountryChange(e.target.value)}
-              placeholder="ej: Japan"
-              required
-              style={inputStyle}
-            />
-          </div>
-          <div style={{ width: '80px' }}>
-            <label style={labelStyle}>Código</label>
-            <input
-              name="destination_country_code"
-              value={form.destination_country_code}
-              onChange={handleChange}
-              placeholder="JP"
-              maxLength={3}
-              style={inputStyle}
-            />
-          </div>
+        {/* Country search */}
+        <div style={{ position: 'relative' }}>
+          <label style={labelStyle}>País destino</label>
+          <input
+            value={countryInput}
+            onChange={(e) => handleCountryInput(e.target.value)}
+            placeholder="Buscá un país... ej: Japan"
+            required
+            style={inputStyle}
+          />
+          {form.destination_country_code && (
+            <span style={{
+              position: 'absolute',
+              right: '12px',
+              top: '34px',
+              fontSize: '11px',
+              fontWeight: 600,
+              color: 'var(--accent)',
+              background: 'var(--bg-card)',
+              border: '0.5px solid var(--border)',
+              borderRadius: '4px',
+              padding: '2px 6px',
+            }}>
+              {form.destination_country_code}
+            </span>
+          )}
+          {countrySuggestions.length > 0 && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              right: 0,
+              background: 'var(--bg-secondary)',
+              border: '0.5px solid var(--border)',
+              borderRadius: 'var(--radius-lg)',
+              zIndex: 100,
+              marginTop: '4px',
+              overflow: 'hidden',
+            }}>
+              {countrySuggestions.map((country) => {
+                const nameEs = country.translations?.spa?.common || country.name?.common
+                return (
+                  <div
+                    key={country.cca2}
+                    onClick={() => handleCountrySelect(country)}
+                    style={{
+                      padding: '8px 12px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      borderBottom: '0.5px solid var(--border)',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-card)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <img
+                      src={country.flags?.svg}
+                      alt={nameEs}
+                      style={{ width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px' }}
+                    />
+                    <span style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{nameEs}</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: 'auto' }}>{country.cca2}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         {/* Origin city */}
@@ -279,7 +339,6 @@ function ItineraryForm() {
       </form>
     </main>
   )
-
 }
 
 export default ItineraryForm

@@ -2,7 +2,7 @@
 // Author: YOUR_NAME YOUR_LASTNAME
 
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { searchFlights, getAirportsByCountry } from '../api/index'
 import type { FlightResults, Airport } from '../types/index'
 
@@ -26,6 +26,7 @@ function Flights() {
   const [showCountryResults, setShowCountryResults] = useState(false)
   const [selectedCountryCode, setSelectedCountryCode] = useState(countryCode)
   const [selectedCountryName, setSelectedCountryName] = useState(countryName)
+  const navigate = useNavigate()
 
   // Load airports when country is provided via URL
   const handleCountrySearch = async (value: string) => {
@@ -46,6 +47,7 @@ function Flights() {
   }
 
   const handleCountrySelect = async (country: any) => {
+    console.log('País seleccionado:', country)
     const name = country.translations?.spa?.common || country.name?.common
     const code = country.cca2
     setCountrySearch(name)
@@ -57,6 +59,7 @@ function Flights() {
     try {
       setLoadingAirports(true)
       const data = await getAirportsByCountry(code)
+      console.log('Aeropuertos:', data)
       setAirports(data.airports || [])
       setShowAirports(true)
     } catch {
@@ -68,11 +71,11 @@ function Flights() {
 
 
   useEffect(() => {
-    if (countryCode) {
+    if (selectedCountryCode) {
       const fetchAirports = async () => {
         try {
           setLoadingAirports(true)
-          const data = await getAirportsByCountry(countryCode)
+          const data = await getAirportsByCountry(selectedCountryCode)
           setAirports(data.airports || [])
           setShowAirports(true)
         } catch {
@@ -83,7 +86,7 @@ function Flights() {
       }
       fetchAirports()
     }
-  }, [countryCode])
+  }, [selectedCountryCode])
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -204,7 +207,7 @@ function Flights() {
       </div>
 
       {/* Airport selector toggle */}
-      {selectedCountryName && (
+      {(selectedCountryName || countryName) && (
         <button
           type="button"
           onClick={() => setShowAirports(!showAirports)}
@@ -225,7 +228,7 @@ function Flights() {
       )}
 
       {/* Airport list */}
-      {countryName && showAirports && (
+      {(selectedCountryName || countryName) && showAirports && (
         <div style={{
           background: 'var(--bg-secondary)',
           border: '0.5px solid var(--border)',
@@ -407,7 +410,7 @@ function Flights() {
                       {formatTime(flight.departure_time)} → {formatTime(flight.arrival_time)}
                     </p>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
+                  <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-end' }}>
                     <span style={{
                       fontSize: '12px',
                       fontWeight: 500,
@@ -419,6 +422,21 @@ function Flights() {
                     }}>
                       {flight.status}
                     </span>
+                    <button
+                      onClick={() => navigate(`/itineraries/create?country=${selectedCountryName || countryName}&code=${selectedCountryCode || countryCode}&origin=${results?.origin || ''}&date=${flight.departure_time ? flight.departure_time.split('T')[0] : ''}`)}
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 500,
+                        padding: '4px 10px',
+                        borderRadius: 'var(--radius)',
+                        background: 'transparent',
+                        border: '0.5px solid var(--accent)',
+                        color: 'var(--accent)',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                      }}>
+                      + Guardar itinerario
+                    </button>
                   </div>
                 </div>
               ))}
