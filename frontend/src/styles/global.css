@@ -107,3 +107,61 @@ textarea {
 .leaflet-control-zoom a:hover {
   background: #334155 !important;
 }
+
+/* ─── Buttons ─────────────────────────────────────────────────────────────── */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0px);
+}
+
+/* Primary button */
+button[style*="var(--accent)"] {
+  box-shadow: 0 2px 8px rgba(29, 158, 117, 0.2);
+}
+
+button[style*="var(--accent)"]:hover {
+  box-shadow: 0 6px 20px rgba(29, 158, 117, 0.35);
+}
+
+/* Danger button */
+button[style*="var(--danger)"]:hover {
+  box-shadow: 0 4px 14px rgba(226, 75, 74, 0.3);
+}
+
+/* ─── Inputs ──────────────────────────────────────────────────────────────── */
+input,
+select,
+textarea {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(29, 158, 117, 0.12);
+  outline: none;
+}
+
+/* ─── Cards ───────────────────────────────────────────────────────────────── */
+.card-hover {
+  transition: all 0.25s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent) !important;
+  box-shadow: 0 8px 28px rgba(29, 158, 117, 0.15);
+}
+
+/* ─── Links ───────────────────────────────────────────────────────────────── */
+a {
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
