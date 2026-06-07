@@ -51,7 +51,9 @@ button {
   font-family: var(--font);
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: var(--font);
 }
 
@@ -71,4 +73,37 @@ input, select, textarea {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+}
+
+/* Leaflet Map */
+.leaflet-container {
+  background: #0f1117 !important;
+}
+
+.map-tooltip {
+  background: #1e293b;
+  border: 0.5px solid #334155;
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-family: Inter, system-ui, sans-serif;
+  padding: 4px 8px;
+  box-shadow: none;
+}
+
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+  display: none;
+}
+
+.leaflet-control-zoom a {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: #334155 !important;
 }

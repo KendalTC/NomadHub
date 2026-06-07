@@ -3,9 +3,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getCountryProfile } from '../api/index'
 import type { Country } from '../types/index'
-/*import MapView from '../components/MapView'
+import MapView from '../components/MapView'
 
-*/
 function Home() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
@@ -43,9 +42,8 @@ function Home() {
   }
 
   return (
-    <main style={{ minHeight: '100vh' }}>
+    <main style={{ minHeight: '100vh', overflow: 'hidden' }}>
 
-      {/* Hero */}
       <section style={{
         textAlign: 'center',
         padding: '3rem 2rem 2rem',
@@ -103,12 +101,11 @@ function Home() {
         </form>
       </section>
 
- {/* Map */}
-{/*
-<section style={{ padding: '0 2rem 2rem' }}>
-  <MapView onCountryClick={handleCountryClick} />
-</section>
-*/}
+      <section style={{ padding: '0 2rem 2rem', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: '1000px' }}>
+          <MapView onCountryClick={handleCountryClick} />
+        </div>
+      </section>
 
       {/* Featured Countries */}
       <section style={{ padding: '0 2rem 3rem' }}>
