@@ -1,48 +1,36 @@
 @echo off
+title NomadHub - Instalador
+set ROOT=%~dp0
+
 echo ================================================
 echo         NomadHub - Instalador Windows
 echo ================================================
 echo.
 
-echo [1/6] Creando entorno virtual...
-python -m venv venv
-call venv\Scripts\activate
+echo [1/4] Creando entorno virtual...
+python -m venv "%ROOT%venv"
 
-echo [2/6] Instalando dependencias de Python...
-pip install -r requirements.txt
+echo [2/4] Instalando dependencias Python...
+"%ROOT%venv\Scripts\python.exe" -m pip install -r "%ROOT%requirements.txt"
 
-echo [3/6] Verificando archivo .env...
-if not exist .env (
-    echo ADVERTENCIA: No se encontro el archivo .env
-    echo Crea el archivo .env con las variables necesarias antes de continuar.
-    echo Ejemplo:
-    echo   SECRET_KEY=django-insecure-cambiar
-    echo   DEBUG=True
-    echo   DB_NAME=nomadhub
-    echo   DB_USER=root
-    echo   DB_PASSWORD=
-    echo   DB_HOST=localhost
-    echo   DB_PORT=3306
-    echo   AVIATION_KEY=tu_api_key
-    pause
-    exit /b 1
-)
+echo [3/4] Ejecutando migraciones...
+"%ROOT%venv\Scripts\python.exe" "%ROOT%manage.py" migrate
 
-echo [4/6] Ejecutando migraciones...
-python manage.py migrate
-
-echo [5/6] Instalando dependencias del frontend...
-cd frontend
+echo [4/4] Instalando dependencias frontend...
+cd /d "%ROOT%frontend"
 npm install
-cd ..
+cd /d "%ROOT%"
 
-echo [6/6] Instalacion completada.
+echo.
+echo Iniciando servidores...
+start "Backend - Django" cmd /k ""%ROOT%venv\Scripts\python.exe" "%ROOT%manage.py" runserver"
+timeout /t 8 /nobreak > nul
+start "Frontend - React" cmd /k "cd /d "%ROOT%frontend" && npm run dev"
+timeout /t 10 /nobreak > nul
+start http://localhost:5173
+
 echo.
 echo ================================================
-echo  Para correr el proyecto:
-echo  Terminal 1: venv\Scripts\activate y python manage.py runserver
-echo  Terminal 2: cd frontend y npm run dev
-echo  Luego abre: http://localhost:5173
+echo  NomadHub corriendo en http://localhost:5173
 echo ================================================
-echo.
 pause

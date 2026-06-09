@@ -44,7 +44,7 @@ Aplicación web para explorar países, consultar clima en tiempo real y buscar v
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/TU_USUARIO/NomadHub.git
+git clone https://github.com/KendalTC/NomadHub.git
 cd NomadHub
 ```
 
